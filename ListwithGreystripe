@@ -1,0 +1,215 @@
+package com.example.list;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.util.Log;
+//import android.view.Menu;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+
+//import com.MadsAdView.MadsAdView;
+import com.greystripe.sdk.GSAd;
+import com.greystripe.sdk.GSMobileBannerAdView;
+
+//import com.revmob.RevMob;
+//import com.revmob.ads.banner.RevMobBanner;
+
+import java.util.*;
+
+public class MainActivity extends Activity {
+
+  private ArrayList <String> list;
+	private String userinput; 
+	private ListView lv;
+	private ArrayAdapter<String> aa;
+	//fields necessary for RevMob ads!
+	/*private static final String appid = "51dda3078893738cbb000008";
+	private RevMob revmob;*/
+	
+	public MainActivity()
+	{
+		list = new ArrayList <String> ();
+		userinput = null;
+	}
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) 
+	{
+		super.onCreate(savedInstanceState);
+		//MadsAdView.init(getApplicationContext());
+		setContentView(R.layout.activity_main);	
+		
+		lv = (ListView) findViewById(R.id.listView1);
+		
+		aa = new ArrayAdapter<String> (this,android.R.layout.simple_list_item_1,list);
+		lv.setAdapter(aa);
+		
+		Button addbutton = (Button) findViewById(R.id.button2);
+		addbutton.setOnClickListener(new View.OnClickListener() {
+			public void onClick (View v) 	//redirected to method when it is clicked on
+			{
+				addDialogBoxA(v);
+			}
+		}); 
+		
+		Button removebutton = (Button) findViewById(R.id.button1);
+		removebutton.setOnClickListener(new View.OnClickListener() {
+			
+			public void onClick(View v) 
+			{
+				addDialogBoxR(v); //this box shows up when want to remove an item from list
+			}
+		}); 
+		
+		//GreyStripe Ad process:
+		GSAd myBannerAd = (GSMobileBannerAdView) this.findViewById(R.id.gsBanner);
+		((GSMobileBannerAdView) myBannerAd).refresh();
+
+
+		//Strating revmob session
+		/*revmob = RevMob.start(this, appid);
+		RevMobBanner banner = revmob.createBanner(this);
+        ViewGroup view = (ViewGroup) findViewById(R.id.banner);
+        view.addView(banner); */
+				
+		//starting mads one session		
+		
+		/*MadsAdView adView = new MadsAdView(getBaseContext(), "04F006733229C984", "0345893057");
+		
+		adView.setEnableExpandInActivity(true);
+		adView.setId(12345);
+		
+		adView.setMadsAdType("inline");
+		adView.update();
+		ViewGroup myView = (ViewGroup) findViewById(R.id.banner);
+		myView.addView(getAdView());*/
+		
+	}
+
+	/*@Override
+	protected void onPause() 
+	{
+		super.onPause();
+		MadsAdView.sleepSession();
+	}
+	
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		MadsAdView.resume();
+	}*/
+	
+	/*@Override
+	public boolean onCreateOptionsMenu(Menu menu) 
+	{
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	} */
+	
+	//dialog box created when "add" button is clicked
+	public String addDialogBoxA(View v)
+	{
+		userinput=null;
+		AlertDialog.Builder box = new AlertDialog.Builder(this);
+		//box.setView(R.layout.my_dialog_layout);
+		box.setTitle("Add");
+		box.setMessage("Enter which show you would like to add: ");
+		
+		//text box on on the dialog box:		
+		final EditText textbox = new EditText(getApplicationContext());
+		textbox.setTextColor(Color.parseColor("#000000"));
+		box.setView(textbox); //box.setView(v);
+		 
+		//button to add to the list
+		box.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) 
+			{
+				userinput = textbox.getText().toString();
+				addUserInput(userinput);
+			}
+		 });
+		 //button to cancel opening the dialog box
+		box.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			public void onClick (DialogInterface dialog, int which)
+			{
+				dialog.cancel(); //cancel --> terminate the dialog box!
+				userinput = null;
+			}
+		 });
+		 
+		AlertDialog diagbox = box.create(); //create from the builder object
+		diagbox.show();	
+		return userinput;
+	}
+	
+	/*box that is created when Remove button is clicked
+	 * add text box, button to cancel, button to remove the item from list
+	 * --> figure out way to send/save the item that is in the list 
+	 */
+	public String addDialogBoxR(View v)
+	{
+		userinput = null;
+		AlertDialog.Builder box = new AlertDialog.Builder(this);
+		box.setTitle("Remove");
+		box.setMessage("Enter which show you would like to remove: ");
+		
+		final EditText txt = new EditText (getApplicationContext());
+		txt.setTextColor(Color.parseColor("#000000"));
+		box.setView(txt); //box.setView(v);
+		 
+		//button to remove from the list
+		box.setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) 
+			{
+				userinput = txt.getText().toString();
+				removeUserInput(userinput);
+			}
+		});
+		//button to cancel opening the dialog box
+		box.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			public void onClick (DialogInterface dialog, int which)
+			{
+				dialog.cancel(); //cancel --> terminate the dialog box!
+				userinput = null;
+			}
+		 });
+		
+		AlertDialog actlbox = box.create();
+		actlbox.show();
+		return userinput;
+	}
+	
+	//add userinput to ArrayList
+	public void addUserInput(String show)
+	{
+		if (show != null)
+			list.add(show);
+		aa.notifyDataSetChanged(); //updates listview with the new changes
+	}
+	
+	//check if user input is in array and then remove from ArrayList list
+	public void removeUserInput(String show)
+	{	
+		if (show != null) {
+			boolean showavailable = false;
+			for (int i = 0 ; i < list.size(); i++)
+			{
+				if (list.get(i).equals(show))
+					showavailable=true;
+			}
+			if (showavailable == true)
+				list.remove(show);
+		}	//????or do i have to first do a loop to find the show and delete it based on index?
+		aa.notifyDataSetChanged(); 
+	}
+}
